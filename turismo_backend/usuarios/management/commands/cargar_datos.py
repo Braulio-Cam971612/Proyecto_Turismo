@@ -1,4 +1,4 @@
-
+"""Carga datos ficticios de demostracion. Uso: python manage.py cargar_datos"""
 from datetime import timedelta
 from decimal import Decimal
 

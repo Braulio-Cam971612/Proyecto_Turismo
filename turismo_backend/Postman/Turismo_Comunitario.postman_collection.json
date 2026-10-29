@@ -1,0 +1,3094 @@
+{
+  "info": {
+    "name": "Turismo Comunitario y Rural - API",
+    "_postman_id": "c17e8b0f-3e36-4955-b310-e81b6717fd1c",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden (carpetas 1 a 6). Requiere: python manage.py cargar_datos"
+  },
+  "item": [
+    {
+      "name": "1. Autenticación",
+      "item": [
+        {
+          "name": "Registro de turista (público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = (n) => new Date(Date.now() + n * 86400000);",
+                  "pm.collectionVariables.set(\"salida_fecha_hora\", d(15 + Math.floor(Math.random()*300)).toISOString());",
+                  "pm.collectionVariables.set(\"entrada\", d(30).toISOString().slice(0,10));",
+                  "pm.collectionVariables.set(\"fin\", d(33).toISOString().slice(0,10));",
+                  "pm.collectionVariables.set(\"entrada_mala\", d(34).toISOString().slice(0,10));",
+                  "pm.collectionVariables.set(\"fin_mala\", d(31).toISOString().slice(0,10));",
+                  "pm.collectionVariables.set(\"sufijo\", Date.now());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/registro/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Crea siempre un usuario con rol TURISTA.\n\nRespuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"turista_{{sufijo}}\",\n  \"email\": \"turista_{{sufijo}}@ejemplo.com\",\n  \"password\": \"Clave12345\",\n  \"first_name\": \"Ana\",\n  \"pais\": \"Costa Rica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/registro/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 7,\n  \"username\": \"turista_1730000000\",\n  \"rol\": \"TURISTA\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set(\"token_admin\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin_demo\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"token\": \"9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b\",\n  \"username\": \"admin_demo\",\n  \"rol\": \"ROL\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login guía",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set(\"token_guia\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"guia_demo\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"token\": \"9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b\",\n  \"username\": \"guia_demo\",\n  \"rol\": \"ROL\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login anfitrión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set(\"token_anfitrion\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"anfitrion_demo\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"token\": \"9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b\",\n  \"username\": \"anfitrion_demo\",\n  \"rol\": \"ROL\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login turista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set(\"token_turista\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"turista_demo\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"token\": \"9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b\",\n  \"username\": \"turista_demo\",\n  \"rol\": \"ROL\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login con credenciales malas (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin_demo\",\n  \"password\": \"incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Credenciales inválidas.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mi perfil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/me/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 4,\n  \"username\": \"turista_demo\",\n  \"rol\": \"TURISTA\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Usuarios (solo admin)",
+      "item": [
+        {
+          "name": "Listar usuarios filtrando por rol",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/?rol=GUIA&search=guia",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "rol",
+                  "value": "GUIA"
+                },
+                {
+                  "key": "search",
+                  "value": "guia"
+                }
+              ]
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/usuarios/?rol=GUIA&search=guia"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"pagina_actual\": 1,\n  \"total_registros\": 1,\n  \"resultados\": [\n    {\n      \"id\": 2,\n      \"username\": \"guia_demo\",\n      \"rol\": \"GUIA\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Crear usuario con rol",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"usuario_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"guia_{{sufijo}}\",\n  \"email\": \"g_{{sufijo}}@ejemplo.com\",\n  \"password\": \"Clave12345\",\n  \"rol\": \"GUIA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/usuarios/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 8,\n  \"username\": \"guia_1730000000\",\n  \"rol\": \"GUIA\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Turista no puede listar usuarios (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 403."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 403",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/usuarios/"
+                }
+              },
+              "status": "403",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Su rol no tiene permiso para esta operación.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Eliminar usuario creado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/{{usuario_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "{{usuario_id}}",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 204."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 204",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/usuarios/{{usuario_id}}/"
+                }
+              },
+              "status": "204",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Experiencias y salidas",
+      "item": [
+        {
+          "name": "Sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 401."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 401",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/"
+                }
+              },
+              "status": "401",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Las credenciales de autenticación no se proveyeron.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Turista no crea experiencia (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"categoria\": \"TALLER\",\n  \"precio_persona\": \"1000\",\n  \"capacidad_maxima\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 403",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/"
+                }
+              },
+              "status": "403",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Su rol no tiene permiso para esta operación.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Guía crea experiencia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"experiencia_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Kayak en el estero {{sufijo}}\",\n  \"categoria\": \"AVENTURA\",\n  \"precio_persona\": \"18000\",\n  \"capacidad_maxima\": 6,\n  \"duracion_horas\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 3,\n  \"nombre\": \"Kayak en el estero\",\n  \"capacidad_maxima\": 6\n}"
+            }
+          ]
+        },
+        {
+          "name": "Precio negativo (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mala\",\n  \"categoria\": \"TALLER\",\n  \"precio_persona\": \"-1\",\n  \"capacidad_maxima\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"precio_persona\": [\n    \"El precio por persona debe ser mayor que cero.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Listar con filtros, búsqueda, orden y paginación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/?categoria=AVENTURA&precio_max=30000&search=kayak&ordering=-precio_persona&page=1&page_size=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "categoria",
+                  "value": "AVENTURA"
+                },
+                {
+                  "key": "precio_max",
+                  "value": "30000"
+                },
+                {
+                  "key": "search",
+                  "value": "kayak"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-precio_persona"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/?categoria=AVENTURA&precio_max=30000&search=kayak&ordering=-precio_persona&page=1&page_size=5"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"pagina_actual\": 1,\n  \"total_registros\": 1,\n  \"resultados\": [\n    {\n      \"id\": 3\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Actualizar precio (PATCH)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/{{experiencia_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                "{{experiencia_id}}",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precio_persona\": \"20000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/{{experiencia_id}}/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 3,\n  \"precio_persona\": \"20000.00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Guía crea salida futura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"salida_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/salidas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "salidas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"experiencia\": \"{{experiencia_id}}\",\n  \"fecha_hora\": \"{{salida_fecha_hora}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/salidas/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 5,\n  \"experiencia\": 3,\n  \"cupos_disponibles\": 6\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Hospedajes",
+      "item": [
+        {
+          "name": "Anfitrión crea hospedaje",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"hospedaje_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_anfitrion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/hospedajes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "hospedajes",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Casa del Estero {{sufijo}}\",\n  \"ubicacion\": \"Chacarita, Puntarenas\",\n  \"precio_noche\": \"28000\",\n  \"capacidad_personas\": 3,\n  \"num_habitaciones\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_anfitrion}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/hospedajes/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 4,\n  \"nombre\": \"Casa del Estero\",\n  \"capacidad_personas\": 3\n}"
+            }
+          ]
+        },
+        {
+          "name": "Hospedajes disponibles por fechas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/hospedajes/disponibles/?entrada={{entrada}}&salida={{fin}}&huespedes=2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "hospedajes",
+                "disponibles",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "entrada",
+                  "value": "{{entrada}}"
+                },
+                {
+                  "key": "salida",
+                  "value": "{{fin}}"
+                },
+                {
+                  "key": "huespedes",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/hospedajes/disponibles/?entrada={{entrada}}&salida={{fin}}&huespedes=2"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"total_registros\": 3,\n  \"resultados\": [\n    {\n      \"id\": 4,\n      \"nombre\": \"Casa del Estero\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Reservas",
+      "item": [
+        {
+          "name": "Turista reserva tour",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"reserva_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salida\": \"{{salida_id}}\",\n  \"personas\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 9,\n  \"estado\": \"PENDIENTE\",\n  \"estado_pago\": \"PENDIENTE\",\n  \"total\": \"40000.00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Más personas que la capacidad (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salida\": \"{{salida_id}}\",\n  \"personas\": 99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"personas\": [\n    \"Supera la capacidad máxima de la experiencia.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cupo agotado (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salida\": \"{{salida_id}}\",\n  \"personas\": 6\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 409",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/"
+                }
+              },
+              "status": "409",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Cupo agotado: solo quedan 4 lugares.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Fechas de hospedaje inválidas (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hospedaje\": \"{{hospedaje_id}}\",\n  \"huespedes\": 2,\n  \"fecha_entrada\": \"{{entrada_mala}}\",\n  \"fecha_salida\": \"{{fin_mala}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"fecha_salida\": [\n    \"La fecha de salida debe ser posterior a la de entrada.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Turista reserva hospedaje",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"reserva_hosp_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hospedaje\": \"{{hospedaje_id}}\",\n  \"huespedes\": 2,\n  \"fecha_entrada\": \"{{entrada}}\",\n  \"fecha_salida\": \"{{fin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 10,\n  \"estado\": \"PENDIENTE\",\n  \"total\": \"84000.00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Hospedaje ya reservado (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hospedaje\": \"{{hospedaje_id}}\",\n  \"huespedes\": 1,\n  \"fecha_entrada\": \"{{entrada}}\",\n  \"fecha_salida\": \"{{fin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 409",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/"
+                }
+              },
+              "status": "409",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"El hospedaje ya está reservado en esas fechas.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "PATCH que rompe la capacidad (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/{{reserva_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "{{reserva_id}}",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"personas\": 99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/{{reserva_id}}/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"personas\": [\n    \"Supera la capacidad máxima de la experiencia.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Admin lista reservas por estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/?estado=PENDIENTE&ordering=-total",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "PENDIENTE"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-total"
+                }
+              ]
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/?estado=PENDIENTE&ordering=-total"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"total_registros\": 2,\n  \"resultados\": [\n    {\n      \"id\": 10\n    },\n    {\n      \"id\": 9\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Admin paga reserva",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/{{reserva_id}}/pagar/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "{{reserva_id}}",
+                "pagar",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/{{reserva_id}}/pagar/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 9,\n  \"estado\": \"CONFIRMADA\",\n  \"estado_pago\": \"PAGADO\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Pagar de nuevo (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/{{reserva_id}}/pagar/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "{{reserva_id}}",
+                "pagar",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 409."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 409",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/{{reserva_id}}/pagar/"
+                }
+              },
+              "status": "409",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"La reserva no admite pago en su estado actual.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Turista no puede pagar (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/{{reserva_hosp_id}}/pagar/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "{{reserva_hosp_id}}",
+                "pagar",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 403."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 403",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/{{reserva_hosp_id}}/pagar/"
+                }
+              },
+              "status": "403",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Su rol no tiene permiso para esta operación.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Completar antes de tiempo (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/{{reserva_id}}/completar/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "{{reserva_id}}",
+                "completar",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/{{reserva_id}}/completar/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"La salida del tour aún no se ha realizado.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Turista cancela reserva de hospedaje",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reservas/{{reserva_hosp_id}}/cancelar/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "{{reserva_hosp_id}}",
+                "cancelar",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reservas/{{reserva_hosp_id}}/cancelar/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 10,\n  \"estado\": \"CANCELADA\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Eliminar experiencia con reservas (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/experiencias/{{experiencia_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "experiencias",
+                "{{experiencia_id}}",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 409."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 409",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/experiencias/{{experiencia_id}}/"
+                }
+              },
+              "status": "409",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"La operación viola una restricción de integridad (registros relacionados o duplicados).\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Reseñas y sostenibilidad",
+      "item": [
+        {
+          "name": "Reseña de reserva no completada (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resenas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "resenas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reserva\": \"{{reserva_id}}\",\n  \"calificacion\": 5,\n  \"comentario\": \"Excelente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/resenas/"
+                }
+              },
+              "status": "400",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"reserva\": [\n    \"Solo se pueden reseñar reservas completadas.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Guía registra métrica ambiental",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_guia}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/metricas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "metricas",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"experiencia\": \"{{experiencia_id}}\",\n  \"tipo\": \"RESIDUOS_KG\",\n  \"valor\": \"8.5\",\n  \"fecha\": \"2026-10-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "Ejemplo 201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_guia}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/metricas/"
+                }
+              },
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 2,\n  \"tipo\": \"RESIDUOS_KG\",\n  \"valor\": \"8.50\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Admin ve distribución de ingresos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/distribuciones/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "distribuciones",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/distribuciones/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"pagina_actual\": 1,\n  \"total_registros\": 1,\n  \"resultados\": [\n    {\n      \"monto_total\": \"40000.00\",\n      \"monto_comunidad\": \"28000.00\",\n      \"monto_asociacion\": \"12000.00\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reporte: experiencias mejor calificadas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reportes/experiencias-top/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "experiencias-top",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reportes/experiencias-top/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 1,\n    \"nombre\": \"Caminata nocturna\",\n    \"promedio\": 4.8,\n    \"total_resenas\": 5\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Reporte: resumen de sostenibilidad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reportes/resumen-sostenibilidad/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "resumen-sostenibilidad",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 200."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_admin}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reportes/resumen-sostenibilidad/"
+                }
+              },
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"ingresos\": {\n    \"total\": \"40000.00\"\n  },\n  \"reservas_por_estado\": [\n    {\n      \"estado\": \"CONFIRMADA\",\n      \"total\": 1\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Turista no ve reportes (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Token {{token_turista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reportes/experiencias-top/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "experiencias-top",
+                ""
+              ],
+              "query": []
+            },
+            "description": "Respuesta esperada: HTTP 403."
+          },
+          "response": [
+            {
+              "name": "Ejemplo 403",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Token {{token_turista}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/reportes/experiencias-top/"
+                }
+              },
+              "status": "403",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Solo el administrador puede ver los reportes.\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "clave",
+      "value": "Clave12345"
+    }
+  ]
+}
