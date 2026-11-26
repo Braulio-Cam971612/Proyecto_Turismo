@@ -34,9 +34,20 @@ def login_api(request):
     return Response({'token': token.key, 'username': user.username, 'rol': rol_de(user)})
 
 
+@api_view(['POST'])
+def logout_api(request):
+    """Proyecto 2: cierra la sesion revocando el token en el servidor.
+    Como el login usa un token por usuario, se cierran todas las sesiones abiertas de ese usuario."""
+    if isinstance(request.auth, Token):
+        request.auth.delete()
+    return Response({'detail': 'Sesión cerrada. El token fue revocado.'})
+
+
 @api_view(['GET'])
 def me_api(request):
-    return Response(UsuarioSerializer(request.user).data)
+    data = UsuarioSerializer(request.user).data
+    data['rol'] = rol_de(request.user)      # un superusuario sin perfil se reporta como ADMIN
+    return Response(data)
 
 
 @api_view(['GET', 'POST'])
