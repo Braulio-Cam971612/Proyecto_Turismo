@@ -8,7 +8,6 @@ Proyecto del curso Desarrollo de Software IV (UCR, Sede Regional del Pacífico).
 -------------- Integrantes --------------
 Braulio Cambronero Murillo C38879
 Bryan Salamanca Castillo C4J562
-[Tercer integrante — completar]
 
 ---
 
