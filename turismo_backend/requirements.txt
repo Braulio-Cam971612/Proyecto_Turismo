@@ -3,3 +3,4 @@ djangorestframework==3.18.3
 python-dotenv==1.2.2
 PyMySQL==1.1.1
 cryptography
+django-cors-headers>=4.4,<5
